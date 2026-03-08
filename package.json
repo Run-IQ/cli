@@ -1,6 +1,6 @@
 {
   "name": "@run-iq/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "PPE — CLI tool for testing and debugging Parametric Policy Engine rules",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -42,7 +42,7 @@
   "author": "Abdou-Raouf ATARMLA",
   "license": "MIT",
   "dependencies": {
-    "@run-iq/core": "^0.1.2",
+    "@run-iq/core": "^0.2.0",
     "commander": "^12.0.0"
   },
   "devDependencies": {
