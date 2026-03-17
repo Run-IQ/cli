@@ -2,6 +2,12 @@ import type { EvaluationResult } from '@run-iq/core';
 
 export type OutputFormat = 'json' | 'table' | 'compact';
 
+const OUTPUT_FORMATS: ReadonlySet<string> = new Set(['json', 'table', 'compact']);
+
+export function isOutputFormat(value: string): value is OutputFormat {
+  return OUTPUT_FORMATS.has(value);
+}
+
 export function formatResult(result: EvaluationResult, format: OutputFormat): string {
   switch (format) {
     case 'json':

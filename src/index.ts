@@ -1,8 +1,8 @@
 export { createCli } from './cli.js';
 export type { Writer } from './utils/loader.js';
 export type { OutputFormat, ValidationEntry } from './utils/formatter.js';
-export { formatResult, formatValidation } from './utils/formatter.js';
-export { loadRules, loadInput } from './utils/loader.js';
+export { formatResult, formatValidation, isOutputFormat } from './utils/formatter.js';
+export { loadRules, loadInput, loadModule } from './utils/loader.js';
 
 import { createCli } from './cli.js';
 

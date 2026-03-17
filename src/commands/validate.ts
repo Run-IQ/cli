@@ -1,6 +1,6 @@
 import type { Command } from 'commander';
 import { loadRules } from '../utils/loader.js';
-import { formatValidation } from '../utils/formatter.js';
+import { formatValidation, isOutputFormat } from '../utils/formatter.js';
 import type { OutputFormat, ValidationEntry } from '../utils/formatter.js';
 import type { Writer } from '../utils/loader.js';
 
@@ -66,7 +66,8 @@ export function registerValidateCommand(program: Command, writer: Writer): void 
           });
         }
 
-        const output = formatValidation(entries, options.format as OutputFormat);
+        const format: OutputFormat = isOutputFormat(options.format) ? options.format : 'table';
+        const output = formatValidation(entries, format);
         writer.stdout(output);
 
         const hasFailures = entries.some((e) => e.status === 'FAIL');
