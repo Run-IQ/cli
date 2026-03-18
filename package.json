@@ -21,7 +21,10 @@
       }
     }
   },
-  "files": ["dist", "bin"],
+  "files": [
+    "dist",
+    "bin"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
@@ -30,7 +33,13 @@
     "lint:fix": "eslint src/ tests/ --fix && prettier --write src/ tests/",
     "prepublishOnly": "npm run build && npm run typecheck && npm test && npm run lint"
   },
-  "keywords": ["ppe", "policy-engine", "rules-engine", "parametric", "cli"],
+  "keywords": [
+    "ppe",
+    "policy-engine",
+    "rules-engine",
+    "parametric",
+    "cli"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Run-IQ/cli.git"
@@ -55,7 +64,7 @@
     "prettier": "^3.2.0",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
-    "vitest": "^1.3.0"
+    "vitest": "^4.1.0"
   },
   "engines": {
     "node": ">=20.0.0"
