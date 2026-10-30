@@ -179,21 +179,20 @@ describe('validate command', () => {
     expect(capture.out[0]).toContain('1/2 rules valid');
   });
 
-  it('reports hydration type errors from core as an error', async () => {
-    const rules = [
-      {
-        id: 'r1',
-        version: 'not-a-number',
-        model: 'STUB',
-        params: {},
-        priority: 'wrong',
-        effectiveFrom: '2020-01-01T00:00:00.000Z',
-        effectiveUntil: null,
-        tags: [],
-        checksum: 'abc',
-      },
-    ];
-    await writeFile(join(TMP_DIR, 'bad-types.json'), JSON.stringify(rules));
+  it('reports a hydration error from core as a per-rule FAIL', async () => {
+    const good = {
+      id: 'good',
+      version: 1,
+      model: 'STUB',
+      params: {},
+      priority: 1,
+      effectiveFrom: '2020-01-01T00:00:00.000Z',
+      effectiveUntil: null,
+      tags: [],
+      checksum: 'abc',
+    };
+    const bad = { ...good, id: 'bad', version: 'not-a-number' };
+    await writeFile(join(TMP_DIR, 'bad-types.json'), JSON.stringify([good, bad]));
 
     const capture = createCapture();
     const cli = createCli(capture);
@@ -205,10 +204,12 @@ describe('validate command', () => {
       join(TMP_DIR, 'bad-types.json'),
     ]);
 
-    expect(capture.out).toHaveLength(0);
-    expect(capture.err[0]).toContain('Error:');
-    expect(capture.err[0]).toContain('must be a number');
-    expect(process.exitCode).toBe(2);
+    expect(capture.err).toHaveLength(0);
+    expect(capture.out[0]).toContain('[OK  ] good');
+    expect(capture.out[0]).toContain('[FAIL] bad');
+    expect(capture.out[0]).toContain('rule.version must be a number');
+    expect(capture.out[0]).toContain('1/2 rules valid');
+    expect(process.exitCode).toBe(1);
     process.exitCode = undefined;
   });
 

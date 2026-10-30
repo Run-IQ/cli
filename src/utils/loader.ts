@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { resolve, isAbsolute } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { hydrateRules } from '@run-iq/core';
+import { hydrateRule, hydrateRules } from '@run-iq/core';
 import type { Rule, EvaluationInput } from '@run-iq/core';
 
 export interface Writer {
@@ -22,6 +22,32 @@ export async function loadRules(filePath: string): Promise<Rule[]> {
   // and will validate structure internally
   const raw = parsed as Record<string, unknown>[];
   return hydrateRules(raw);
+}
+
+export type RuleEntry = { raw: Record<string, unknown>; rule?: Rule; error?: string };
+
+/**
+ * Like loadRules, but hydrates each rule on its own so one malformed rule
+ * does not hide the others: a rule that fails hydration carries its error message.
+ */
+export async function loadRuleEntries(filePath: string): Promise<RuleEntry[]> {
+  const absolute = resolve(filePath);
+  const content = await readFile(absolute, 'utf-8');
+  const parsed: unknown = JSON.parse(content);
+
+  if (!Array.isArray(parsed)) {
+    throw new Error(`Rules file must contain a JSON array: ${filePath}`);
+  }
+
+  // justification: JSON.parse returns unknown, hydrateRule validates structure internally
+  const raws = parsed as Record<string, unknown>[];
+  return raws.map((raw) => {
+    try {
+      return { raw, rule: hydrateRule(raw) };
+    } catch (error) {
+      return { raw, error: error instanceof Error ? error.message : String(error) };
+    }
+  });
 }
 
 export async function loadInput(filePath: string): Promise<EvaluationInput> {

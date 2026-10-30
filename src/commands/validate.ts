@@ -1,5 +1,5 @@
 import type { Command } from 'commander';
-import { loadRules } from '../utils/loader.js';
+import { loadRuleEntries } from '../utils/loader.js';
 import { formatValidation, isOutputFormat } from '../utils/formatter.js';
 import type { OutputFormat, ValidationEntry } from '../utils/formatter.js';
 import type { Writer } from '../utils/loader.js';
@@ -23,10 +23,19 @@ export function registerValidateCommand(program: Command, writer: Writer): void 
     .option('--format <format>', 'Output format: json, table, compact', 'table')
     .action(async (options: { rules: string; format: string }) => {
       try {
-        const rules = await loadRules(options.rules);
+        const loaded = await loadRuleEntries(options.rules);
         const entries: ValidationEntry[] = [];
 
-        for (const rule of rules) {
+        for (const { raw, rule, error } of loaded) {
+          if (!rule) {
+            entries.push({
+              ruleId: typeof raw['id'] === 'string' ? raw['id'] : '<unknown>',
+              status: 'FAIL',
+              errors: [error ?? 'rule could not be hydrated'],
+            });
+            continue;
+          }
+
           const errors: string[] = [];
 
           for (const field of REQUIRED_FIELDS) {
