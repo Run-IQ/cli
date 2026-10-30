@@ -55,7 +55,7 @@ describe('validate command', () => {
     const rules = [
       {
         id: '',
-        version: 'not-a-number',
+        version: 1,
         model: 'STUB',
         params: {},
         priority: 1,
@@ -113,10 +113,10 @@ describe('validate command', () => {
     const rules = [
       {
         id: '',
-        version: 'not-a-number',
+        version: 1,
         model: 'STUB',
         params: {},
-        priority: 'wrong',
+        priority: 1,
         effectiveFrom: 'invalid-date',
         effectiveUntil: null,
         tags: 'not-an-array',
@@ -137,8 +137,6 @@ describe('validate command', () => {
 
     expect(capture.out[0]).toContain('[FAIL]');
     expect(capture.out[0]).toContain('id must be a non-empty string');
-    expect(capture.out[0]).toContain('version must be a number');
-    expect(capture.out[0]).toContain('priority must be a number');
     expect(capture.out[0]).toContain('effectiveFrom must be a valid date');
     expect(capture.out[0]).toContain('checksum must be a non-empty string');
     expect(capture.out[0]).toContain('tags must be an array');
@@ -179,6 +177,39 @@ describe('validate command', () => {
     expect(capture.out[0]).toContain('[OK  ] good-rule');
     expect(capture.out[0]).toContain('[FAIL]');
     expect(capture.out[0]).toContain('1/2 rules valid');
+  });
+
+  it('reports hydration type errors from core as an error', async () => {
+    const rules = [
+      {
+        id: 'r1',
+        version: 'not-a-number',
+        model: 'STUB',
+        params: {},
+        priority: 'wrong',
+        effectiveFrom: '2020-01-01T00:00:00.000Z',
+        effectiveUntil: null,
+        tags: [],
+        checksum: 'abc',
+      },
+    ];
+    await writeFile(join(TMP_DIR, 'bad-types.json'), JSON.stringify(rules));
+
+    const capture = createCapture();
+    const cli = createCli(capture);
+    await cli.parseAsync([
+      'node',
+      'run-iq',
+      'validate',
+      '--rules',
+      join(TMP_DIR, 'bad-types.json'),
+    ]);
+
+    expect(capture.out).toHaveLength(0);
+    expect(capture.err[0]).toContain('Error:');
+    expect(capture.err[0]).toContain('must be a number');
+    expect(process.exitCode).toBe(2);
+    process.exitCode = undefined;
   });
 
   it('reports error for missing rules file', async () => {
