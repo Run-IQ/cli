@@ -51,7 +51,7 @@
   "author": "Abdou-Raouf ATARMLA",
   "license": "MIT",
   "peerDependencies": {
-    "@run-iq/core": "^0.2.7"
+    "@run-iq/core": "^0.2.8"
   },
   "dependencies": {
     "commander": "^12.0.0"
